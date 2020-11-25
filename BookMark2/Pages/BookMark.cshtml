@@ -1,0 +1,279 @@
+﻿@page
+@model BookMark2.Pages.BookMarkModel
+@{
+}
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+
+    <title>Personal Book Mark</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/album/">
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/navbars/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="~/css/bootstrap-4.5.3-dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/bootstrap-4.5.3-dist/css/bootstrap-grid.css" rel="stylesheet" />
+    <link href="~/css/bootstrap-4.5.3-dist/css/bootstrap-reboot.css" rel="stylesheet" />
+
+    <!-- Javascript that needs to at the start -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link href="~/css/StyleSheet.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <header>
+
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            <a class="navbar-brand" href="index">Personal Book Mark</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarsExample04">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="PersonalBookMark">Book Mark</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+                integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+                crossorigin="anonymous"></script>
+        <script>
+            $(document).ready(function () {
+                getPersonalBookMarksList();
+            });
+            var personalbookmark = {
+                id: 0,
+                title: "",
+                bookType: "",
+                bookGenre: "",
+                bookSubject: "",
+                currentChapters: 0,
+                currentPage: 0
+            }
+
+            // Get all emps to display
+            function getPersonalBookMarksList() {
+                // Call Web API to get a list of emps
+                $.ajax({
+                    url: '/api/PersonalBookMarks',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (personalbookmarks) {
+                        personalbookmarksListSuccess(personalbookmarks);
+                    },
+                    error: function (request, message, error) {
+                        handleException(request, message, error);
+                    }
+                });
+            }
+            // Display all emps returned from Web API call
+            function personalbookmarksListSuccess(personalbookmarks) {
+                // Iterate over the collection of data
+                $("#personalbookmarkTable tbody").remove();
+                $.each(personalbookmarks, function (index, personalbookmark) {
+                    // Add a row to the emp table
+                    personalbookmarksAddRow(personalbookmark);
+                });
+            }
+            // Add emp row to <table>
+            function personalbookmarksAddRow(personalbookmark) {
+                // First check if a <tbody> tag exists, add one if not
+                if ($("#personalbookmarkTable tbody").length == 0) {
+                    $("#personalbookmarkTable").append("<tbody></tbody>");
+                }
+                // Append row to <table>
+                $("#personalbookmarkTable tbody").append(
+                    personalbookmarkBuildTableRow(personalbookmark));
+            }
+
+            // Build a <tr> for a row of table data (Create the (R.U.D.) Read Update Delete UI and display Entries)
+            function personalbookmarkBuildTableRow(personalbookmark) {
+                var newRow = "<tr>" +
+                    "<td>" + personalbookmark.id + "</td>" +
+                    "<td><input   class='input-title centerText' type='text' value='" + personalbookmark.title + "'/></td>" +
+                    "<td><input   class='input-bookType centerText' type='text' value='" + personalbookmark.bookType + "'/></td>" +
+                    "<td><input   class='input-bookGenre centerText' type='text' value='" + personalbookmark.bookGenre + "'/></td>" +
+                    "<td><input   class='input-bookSubject centerText' type='text' value='" + personalbookmark.bookSubject + "'/></td>" +
+                    "<td><input   class='input-currentChapters centerText' type='text' value='" + personalbookmark.currentChapters + "'/></td>" +
+                    "<td><input   class='input-currentPage centerText' type='text' value='" + personalbookmark.currentPage + "'/></td>" +
+                    "<td>" +
+                    "<button class='table-button-UD' type='button' " +
+                    "onclick='personalbookmarkUpdate(this);' " +
+                    "class='btn btn-default' " +
+                    "data-id='" + personalbookmark.id + "' " +
+                    "data-title='" + personalbookmark.title + "' " +
+                    "data-bookType='" + personalbookmark.bookType + "' " +
+                    "data-bookGenre='" + personalbookmark.bookGenre + "' " +
+                    "data-bookSubject='" + personalbookmark.bookSubject + "' " +
+                    "data-currentchapters='" + personalbookmark.currentChapters + "' " +
+                    "data-currentpage='" + personalbookmark.currentPage + "' " +
+                    ">" +
+                    "<span class='glyphicon glyphicon-pencil'/> Update" +
+                    "</button>   " +
+                    " <button class='table-button-UD' type='button' " +
+                    "onclick='personalbookmarkDelete(this);'" +
+                    "class='btn btn-default' " +
+                    "data-id='" + personalbookmark.id + "'>" +
+                    "<span class='glyphicon glyphicon-trash' /> Delete" +
+                    "</button>" +
+                    "</td>" +
+                    "</tr>";
+                return newRow;
+            }
+
+            //add new data in to the database (from the table)
+            function onAddpersonalbookmark(item) {
+                var options = {};
+                options.url = "/api/AddPersonalBookMarks";
+                options.type = "POST";
+                var obj = personalbookmark;
+                obj.title = $("#title").val();
+                obj.booktype = $("#bookType").val();
+                obj.bookgenre = $("#bookGenre").val();
+                obj.booksubject = $("#bookSubject").val();
+                if ($("#currentchapters").val() != "") {
+                    obj.currentChapters = parseInt($("#currentChapters").val());
+                }
+                if ($("#currentPage").val() != "") {
+                    //  block of code to be executed if the condition is true
+                    obj.currentPage = parseInt($("#currentPage").val());
+                }
+                console.dir(obj);
+                options.data = JSON.stringify(obj);
+                options.contentType = "application/json";
+                options.dataType = "html";
+                options.success = function (msg) {
+                    getPersonalBookMarksList();
+                    $("#msg").html(msg);
+                },
+                    options.error = function () {
+                        $("#msg").html("Error while calling the Web API!");
+                    };
+                $.ajax(options);
+            }
+
+            // update current data in to the database (from the table)
+            function personalbookmarkUpdate(item) {
+                var id = $(item).data("id");
+                var options = {};
+                options.url = "/api/UpdatePersonalBookMarks";
+                options.type = "PUT";
+                var obj = personalbookmark;
+                obj.id = $(item).data("id");
+                obj.title = $(".input-title", $(item).parent().parent()).val();
+                obj.booktype = $(".input-bookType", $(item).parent().parent()).val();
+                obj.bookgenre = $(".input-bookGenre", $(item).parent().parent()).val();
+                obj.booksubject = $(".input-bookSubject", $(item).parent().parent()).val();
+                obj.currentChapters = parseInt($(".input-currentChapters", $(item).parent().parent()).val());
+                obj.currentPage = parseInt($(".input-currentPage", $(item).parent().parent()).val());
+                console.dir(obj);
+                options.data = JSON.stringify(obj);
+                options.contentType = "application/json";
+                options.dataType = "html";
+                options.success = function (msg) {
+                    $("#msg").html(msg);
+                };
+                options.error = function () {
+                    $("#msg").html("Error while calling the Web API!");
+                };
+                $.ajax(options);
+            }
+
+            // delete a entry from the database 
+            function personalbookmarkDelete(item) {
+                var id = $(item).data("id");
+                var options = {};
+                options.url = "/api/DeletePersonalBookMarks/"
+                    + id;
+                options.type = "DELETE";
+                options.dataType = "html";
+                options.success = function (msg) {
+                    console.log('msg= ' + msg);
+                    $("#msg").html(msg);
+                    getPersonalBookMarksList();
+                };
+                options.error = function () {
+                    $("#msg").html("Error while calling the Web API!");
+                };
+                $.ajax(options);
+            }
+            // Handle exceptions from AJAX calls
+            function handleException(request, message, error) {
+                var msg = "";
+                msg += "Code: " + request.status + "\n";
+                msg += "Text: " + request.statusText + "\n";
+                if (request.responseJSON != null) {
+                    msg += "Message" + request.responseJSON.Message + "\n";
+                }
+                alert(msg);
+            }
+        </script>
+    </header>
+
+    <main role="main">
+        <h1 class="centerText">Personal Book Mark</h1>
+
+        <!--this is where we can create new entries in to the database-->
+        <form class="form-table">
+            <table class="table-responsive-md table-hover" id="personalbookmarkTable">
+                <thead>
+                    <tr>
+                        <td scope="col">ID</td>
+                        <th scope="col" class="centerText">Title</th>
+                        <th scope="col" class="centerText">Book Type</th>
+                        <th scope="col" class="centerText">Genre</th>
+                        <th scope="col" class="centerText">Subject</th>
+                        <th scope="col" class="centerText">Current Chapters</th>
+                        <th scope="col" class="centerText">Current Page</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input class="centerText" id="title" type="text" /></td>
+                        <td><input class="centerText" id="bookType" type="text" /></td>
+                        <td><input class="centerText" id="bookGenre" type="text" /></td>
+                        <td><input class="centerText" id="bookSubject" type="text" /></td>
+                        <td><input class="centerText" id="currentChapters" type="text" /></td>
+                        <td><input class="centerText" id="currentPage" type="text" /></td>
+                        <td><input type="button" id="insert" value="Insert" onclick="onAddpersonalbookmark(this)" /></td>
+                    </tr>
+                </thead>
+            </table>
+            <br />
+            <div id="msg"></div>
+        </form>
+        
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    </main>
+    <footer class="footer text-muted bg-dark">
+        <div class="container">
+            <br>
+            <p class="float-right">
+                <a href="#">Back to top</a>
+            </p>
+            <p>Personal Book Mark &copy; 2020</p>
+            <br>
+        </div>
+    </footer>
+</body>
+</html>
